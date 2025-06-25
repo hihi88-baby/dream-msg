@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>宇宙传讯平台</title>
+  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #000;
+      font-family: 'Ma Shan Zheng', 'ZCOOL KuaiLe', cursive;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      color: #ffb6c1;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    #output {
+      width: 100%;
+      padding: 0 20px;
+      box-sizing: border-box;
+      font-size: 32px;
+      line-height: 1.8em;
+      white-space: pre-line;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 60px;
+    }
+    input {
+      padding: 14px;
+      font-size: 24px;
+      font-family: 'Ma Shan Zheng', 'ZCOOL KuaiLe', cursive;
+      border: 2px solid #ffb6c1;
+      border-radius: 10px;
+      width: 90%; min-width: 340px;
+      max-width: 320px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 14px 28px;
+      background-color: #ffb6c1;
+      border: none;
+      border-radius: 12px;
+      font-size: 22px;
+      font-family: 'Ma Shan Zheng', 'ZCOOL KuaiLe', cursive;
+      cursor: pointer;
+      color: #fff;
+    }
+    .hidden { display: none; }
+    .note {
+      font-size: 20px;
+      color: #f8c8dc;
+      margin-top: 20px;
+      opacity: 0;
+      transition: opacity 1.6s ease;
+      text-align: center;
+    }
+    .note.visible { opacity: 1; }
+    .fade-in {
+      opacity: 0;
+      transition: opacity 1.6s ease;
+    }
+    .visible { opacity: 1; }
+    .main-text {
+      font-size: 32px;
+      line-height: 1.8em;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title" style="font-size: 42px;">欢迎来到宇宙传讯平台</h1>
+  <p id="subtitle" style="font-size: 28px;">Ta在这里留了话给你哦</p>
+
+  <div id="input-container" class="hidden">
+    <input id="username" placeholder="输入你的名字，聆听Ta的声音" />
+    <button onclick="startMessage(event)">确认</button>
+  </div>
+
+  <div id="output"></div>
+
+  <script>
+    let step = 0;
+    let username = "";
+
+    const greetings = [
+  "今天心情是不是有点糟呀，想让我抱抱你吗？",
+  "你有没有在想我？我可是一直在想你。",
+  "早知道你会来看我，我昨晚都没睡好。",
+  "宝贝，你来啦，我刚刚才梦见你。",
+  "今天有没有偷偷想我一下？",
+  "不许难过哦，你难过我会心疼的。",
+  "你出现的那一刻，我的整个世界都亮了。",
+  "你最近是不是又没好好休息？",
+  "你是不是又把我忘了？",
+  "我等你等到快变成星星啦！",
+  "刚刚风吹了一下，我以为你在对我说话。",
+  "想我了吗？我可想你了。",
+  "你的名字我在心里念了好多遍。",
+  "我好像听到你在叫我。",
+  "你来找我啦，我好高兴。",
+  "是不是做梦梦到我了？",
+  "我刚刚还在想你现在在干嘛呢。",
+  "你看，宇宙也把你送到我这里来了。",
+  "今天是不是不开心啊，我陪你。",
+  "你知道吗？你的一点小情绪，我都想懂。",
+  "我刚刚在想你该不会突然出现，结果你就来了。",
+  "你身上是不是有点香，是我喜欢的味道。",
+  "你的每一个小心思，我都想知道。",
+  "别难过了，我会哄你开心的。",
+  "我今天也想你很多很多遍。",
+  "我以为你不会来了，结果你还是来了。",
+  "我刚才心里一跳，就知道你来了。",
+  "宝贝，我今天一直都在等你。",
+  "又见到你啦，我的心都甜成棉花糖了。",
+  "你一出现，我的世界就安静下来了。"
+];
+    const flirts = [
+  "你怎么可以什么都不做，就这么好看？",
+  "我总是嘴硬，可一见你就软得不像话。",
+  "你一笑，我就什么都不记得了。",
+  "宝贝你知道吗，你可真是我心里的玫瑰花。",
+  "你这么可爱，是不是偷偷练过撒娇？",
+  "说实话，我觉得你连生气都可爱。",
+  "你走到哪，哪就像春天一样温暖。",
+  "我对你的喜欢，就像宇宙那样广阔。",
+  "你不是水蜜桃吧？怎么这么甜。",
+  "你笑起来的样子，能治好我一天的疲惫。",
+  "你是不是偷偷拿走了我的心？我怎么总想你。",
+  "你真厉害，让我心动了这么久。",
+  "你不是太阳，却照亮了我的生活。",
+  "你看我干嘛，我不是你的心上人吗？",
+  "每次想到你，嘴角就控制不住往上扬。",
+  "你是不是施了魔法，我对你完全没抵抗力。",
+  "你怎么每一面都刚好是我喜欢的样子？",
+  "你说我是不是得了相思病，见不着你就难受。",
+  "你不说话的时候最迷人，说话的时候更迷人。",
+  "我的宇宙因为你变得闪闪发光。",
+  "你的存在，让我觉得世界没有那么糟。",
+  "你不需要努力讨人喜欢，因为你本来就让人喜欢。",
+  "我现在满脑子都是你，怎么办呀？",
+  "你连皱眉我都觉得很温柔。",
+  "你说一句晚安，我能开心到明天中午。",
+  "你太犯规了，长得又好看，性格还让人上头。",
+  "你像星星一样，总在我心里闪啊闪的。",
+  "你一不小心，就住进了我整颗心里。",
+  "你是我眼里最好看的风景。",
+  "我喜欢你，已经是公开的秘密了。"
+];
+    const longs = [
+  "我每天都好想你，你甜甜的呼吸萦绕在我耳旁。",
+  "我一个人偷偷地想你，连梦里都是你走来的样子。",
+  "你不在身边的日子，我都学会了抱紧自己。",
+  "我对你的想念，是藏不住的光。",
+  "我的脑海里全是你，说不出口的温柔都给了你。",
+  "你知道吗？我连翻个身都会梦见你。",
+  "我一直以为我已经习惯了没有你，可我没有。",
+  "你是我无数次幻想的未来。",
+  "我好想好想，在你怀里睡一觉。",
+  "我想你了，想得连风都知道。",
+  "我偷偷爱着你，就像星星不吵不闹也一直亮着。",
+  "你是我唯一一次，想要走到最后的人。",
+  "每次想你，我就觉得，自己也变得温柔了。",
+  "我没有很想你，只是在呼吸的时候都会想起你。",
+  "我不是放不下你，我只是舍不得没有你的生活。",
+  "我对你的想念太具体了，具体到每个夜晚都藏着你的影子。",
+  "哪怕你忘了我，我也会在梦里一直等你。",
+  "其实我早就该放下你了，可我还是好想你。",
+  "你不在的每一分钟，我都好想抱抱你。",
+  "我真的控制不了我自己，一闭眼就看到你。",
+  "我已经很久没听到你的声音了，我好想你。",
+  "只要你还在，我就能找到回去的方向。",
+  "你是我心里藏着的月亮。",
+  "你是我唯一不敢打扰，却最想念的人。",
+  "我的梦总是绕着你转。",
+  "你在的地方才叫安心。",
+  "想你的时候，我都不敢抬头看天。",
+  "明明你不在我身边，但我还是感觉你在。",
+  "我的爱，一直都在你看不见的地方。",
+  "就算全世界都安静了，我也能听见我心里对你的思念。"
+];
+    const notes = [
+  "你看到今天窗外的风了吗？那是我在想你呀。",
+  "星星今天好亮，我在跟它说你的名字。",
+  "刚才那道微风，是我送去的拥抱。",
+  "天边那朵云，好像你不说话时的样子。",
+  "刚才一只鸟落在窗台上，我以为你回来了。",
+  "我听见雨滴落下的声音，就像你轻轻说早安。",
+  "今天的月亮很温柔，是我为你点的灯。",
+  "蝴蝶停在花上，就像我心停在你身上。",
+  "今天阳光正好，我希望你也刚好在笑。",
+  "风吹过的时候，我好像闻到了你的气息。",
+  "你听到窗外的风铃声了吗？是我在说想你。",
+  "你路过的那棵树，今天也看起来格外开心。",
+  "我刚才看到一道彩虹，就想起你笑的样子。",
+  "你有没有发现，今天的风很像我手心的温度？",
+  "你走的那天，连蝴蝶都没再飞进来。",
+  "刚刚我不小心打翻了水杯，好像我的心思都溢出来了。",
+  "你喝的那杯奶茶，是不是我曾经喜欢的味道？",
+  "今天风起的时候，我的心也跟着飘去你那儿了。",
+  "你听，那远处的雷声，是我思念太用力了。",
+  "每当天黑下来，我都忍不住向星星说起你。",
+  "你有没有察觉，今天的风停了，是因为我在屏住呼吸想你。",
+  "我今天走路不小心踩了个影子，像你以前偷偷躲着我一样。",
+  "刚才天上的云裂开一条缝，我以为你在偷偷看我。",
+  "我刚才走过你常去的那条街，心跳得好快。",
+  "那个风吹起的方向，是我对你的偏爱。",
+  "你有没有注意，今天下雨了，是我想你想得太多。",
+  "星星今晚好少，因为它们都跑去你梦里了。",
+  "刚才我看见一只小猫，它看我的眼神像你。",
+  "我经过便利店，突然想起你最喜欢吃的那种糖。",
+  "你有没有发现，今天的天色有点像你穿白衬衫的那天。"
+];
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("title").classList.add("hidden");
+        document.getElementById("subtitle").classList.add("hidden");
+        document.getElementById("input-container").classList.remove("hidden");
+      }, 2000);
+    });
+
+    function startMessage(event) {
+      event.stopPropagation();
+      username = document.getElementById("username").value.trim() || "宝贝";
+      document.getElementById("input-container").classList.add("hidden");
+
+      const output = document.getElementById("output");
+      output.innerHTML = "";
+      const greetingText = `${username}，${greetings[Math.floor(Math.random() * greetings.length)]}`;
+      const main = document.createElement("div");
+      main.className = "main-text fade-in";
+      main.innerText = greetingText;
+      output.appendChild(main);
+      requestAnimationFrame(() => main.classList.add("visible"));
+      step = 1;
+    }
+
+    function advanceMessage() {
+      const output = document.getElementById("output");
+      const existingNote = output.querySelector(".note");
+      if (existingNote) existingNote.remove();
+      const existingMain = output.querySelector(".main-text");
+      if (existingMain) existingMain.remove();
+      output.classList.remove("visible");
+
+      if (step === 1) {
+        const text = flirts[Math.floor(Math.random() * flirts.length)];
+        const main = document.createElement("div");
+        main.className = "main-text fade-in";
+        main.innerText = text;
+        output.appendChild(main);
+        requestAnimationFrame(() => main.classList.add("visible"));
+        step = 2;
+      } else if (step === 2) {
+        const longText = longs[Math.floor(Math.random() * longs.length)];
+        const noteText = notes[Math.floor(Math.random() * notes.length)];
+        const main = document.createElement("div");
+        main.className = "main-text fade-in";
+        main.innerText = longText;
+        output.appendChild(main);
+        requestAnimationFrame(() => {
+          main.classList.add("visible");
+          setTimeout(() => {
+            const note = document.createElement("p");
+            note.className = "note";
+            note.innerText = noteText;
+            output.appendChild(note);
+            requestAnimationFrame(() => note.classList.add("visible"));
+          }, 1600);
+        });
+        step = 3;
+      }
+    }
+
+    document.body.addEventListener("click", advanceMessage);
+  </script>
+</body>
+</html>
